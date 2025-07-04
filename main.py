@@ -4,8 +4,14 @@ import threading
 import asyncio
 import fastf1
 from datetime import datetime, timezone, timedelta
+import os
 
-fastf1.Cache.enable_cache('cache')
+cache_dir = 'cache'
+
+if not os.path.exists(cache_dir):
+    os.makedirs(cache_dir)
+
+fastf1.Cache.enable_cache(cache_dir)
 
 client = RealF1Client(topics=["TimingData", "LapCount", "TrackStatus", "SessionInfo", "SessionStatus"])
 
