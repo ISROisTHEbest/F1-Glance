@@ -88,7 +88,7 @@ async def handle_data(records):
     
     try:
         raw = records.get("SessionStatus", [{}])[0] 
-        if raw['status'] == 'Started':
+        if raw['status'] != 'Not Started' or raw['status'] != 'Ends' or raw['status'] != 'Ended':
             data['status'] = 's'
         else:
             schedule = fastf1.get_event_schedule(2025)
