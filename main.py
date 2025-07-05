@@ -22,26 +22,48 @@ app = Flask('F1 Glance API')
 @client.callback("basic_handler")
 async def handle_data(records):
     global session_end_time
-
+    qno = ''
     for driver_no, key in [('44', 'HAM'), ('16', 'LEC')]:
         try:
             driver = next(d for d in records.get("TimingData", []) if d["DriverNo"] == driver_no)
             try:
                 pos = driver['Position']
+                if key not in data:
+                    data[key] = {}
+                data[key]['pos'] = pos
             except:
                 pass
             try:
                 gap = driver['GapToLeader']
             except:
+                pass
+            try:
                 gap = driver['TimeDiffToFastest']
+            except:
+                pass
+            try:
+                for i in range(3):
+                    try:
+                        gapraw = driver[f'Stats_{i}_TimeDiffToFastest']
+                        if gapraw != '':
+                            gap = gapraw
+                            qno = i
+                    except:
+                        pass
+            except:
+                pass
+                
                 
             if not str(gap).startswith('+') and not gap or not isinstance(gap, str):
                 if int(pos) == 1:
                     gap = "LEADER"
                 elif gap == '':
                     gap = '--'
+                 
+            if key not in data:
+                data[key] = {}
+            data[key]['gap'] = gap
             
-            data[key] = [gap, str(pos)]
         except:
             pass
 
@@ -64,7 +86,7 @@ async def handle_data(records):
     try:
         raw = records.get("SessionInfo", [{}])[0]
         roundno = raw['Meeting_Number']
-        sessiontype = raw['Name'].replace('Practice', 'FP').replace('Qualifying', 'Q').replace('Sprint Qualifying', 'SQ').replace(' ', '')
+        sessiontype = raw['Name'].replace('Practice', 'FP').replace('Qualifying', 'Q').replace('Sprint Qualifying', 'SQ').replace(' ', '') + str(qno)
         data['session'] = [sessiontype, roundno]
         if sessiontype != 'Race':
             h, m, s = map(int, raw['GmtOffset'].split(':'))
