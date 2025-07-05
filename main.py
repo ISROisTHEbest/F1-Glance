@@ -15,14 +15,17 @@ fastf1.Cache.enable_cache(cache_dir)
 
 client = RealF1Client(topics=["TimingData", "LapCount", "TrackStatus", "SessionInfo", "SessionStatus"])
 
+
 data = {}
+qno = ''
 
 app = Flask('F1 Glance API')
 
+
 @client.callback("basic_handler")
 async def handle_data(records):
+    global data, qno
     global session_end_time
-    qno = ''
     for driver_no, key in [('44', 'HAM'), ('16', 'LEC')]:
         try:
             driver = next(d for d in records.get("TimingData", []) if d["DriverNo"] == driver_no)
@@ -30,6 +33,8 @@ async def handle_data(records):
                 pos = driver['Position']
                 if key not in data:
                     data[key] = {}
+                if len(pos) == 1:
+                    pos = '0'+pos
                 data[key]['pos'] = pos
             except:
                 pass
@@ -86,7 +91,8 @@ async def handle_data(records):
     try:
         raw = records.get("SessionInfo", [{}])[0]
         roundno = raw['Meeting_Number']
-        sessiontype = raw['Name'].replace('Practice', 'FP').replace('Qualifying', 'Q').replace('Sprint Qualifying', 'SQ').replace(' ', '') + str(qno)
+        sessiontype = raw['Name'].replace('Practice', 'FP').replace('Qualifying', 'Q').replace('Sprint Qualifying', 'SQ').replace(' ', '')
+        sessiontype = str(sessiontype) + str(qno)
         data['session'] = [sessiontype, roundno]
         if sessiontype != 'Race':
             h, m, s = map(int, raw['GmtOffset'].split(':'))
