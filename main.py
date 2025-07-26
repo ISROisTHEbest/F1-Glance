@@ -18,6 +18,7 @@ client = RealF1Client(topics=["TimingData", "LapCount", "TrackStatus", "SessionI
 
 data = {}
 qno = ''
+IST = timezone(timedelta(hours=5, minutes=30))
 
 app = Flask('F1 Glance API')
 
@@ -100,6 +101,8 @@ async def handle_data(records):
             
             start = datetime.fromisoformat(raw['StartDate']).replace(tzinfo=timezone.utc) - gmt_offset
             end = datetime.fromisoformat(raw['EndDate']).replace(tzinfo=timezone.utc) - gmt_offset
+            start = start.astimezone(IST)
+            end = end.astimezone(IST)
             
             data['timeinfo'] = [start.strftime("%Y-%m-%d %H:%M:%S"), end.strftime("%Y-%m-%d %H:%M:%S")]
     except:
@@ -125,7 +128,7 @@ async def handle_data(records):
             for i in range(1, 6):
                 col = f'Session{i}DateUtc'
                 for j in schedule[col].to_dict():
-                    session_time = schedule[col][j].to_pydatetime().replace(tzinfo=timezone.utc)
+                    session_time = schedule[col][j].to_pydatetime().replace(tzinfo=timezone.utc).astimezone(IST)
                     if session_time > datetime.now(timezone.utc):
                         if stime is None or session_time < stime:
                             stime = session_time
