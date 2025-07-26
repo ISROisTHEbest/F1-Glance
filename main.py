@@ -128,10 +128,12 @@ async def handle_data(records):
             for i in range(1, 6):
                 col = f'Session{i}DateUtc'
                 for j in schedule[col].to_dict():
-                    session_time = schedule[col][j].to_pydatetime().replace(tzinfo=timezone.utc)
+                    session_time = schedule[col][j].to_pydatetime()
+                    if session_time.tzinfo is None or session_time.tzinfo.utcoffset(session_time) is None:
+                        session_time = session_time.replace(tzinfo=timezone.utc)
                     if session_time > datetime.now(timezone.utc):
                         if stime is None or session_time < stime:
-                            stime = session_time
+                            stime = session_time.astimezone(tz=IST)
                             session_key = (j, col)
 
             if session_key:
@@ -146,7 +148,7 @@ async def handle_data(records):
                         
     except:
         pass
-
+    
 @app.route('/getdata')
 def get_data():
     return jsonify(data)
