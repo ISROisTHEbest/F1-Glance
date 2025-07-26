@@ -95,7 +95,7 @@ async def handle_data(records):
         sessiontype = raw['Name'].replace('Practice', 'FP').replace('Qualifying', 'Q').replace('Sprint Qualifying', 'SQ').replace(' ', '')
         sessiontype = str(sessiontype) + str(qno)
         data['session'] = [sessiontype, roundno]
-        if sessiontype != 'Race' or sessiontype != 'Sprint':
+        if sessiontype != 'Race' and sessiontype != 'Sprint':
             h, m, s = map(int, raw['GmtOffset'].split(':'))
             gmt_offset = timedelta(hours=h, minutes=m, seconds=s)
             
@@ -123,7 +123,7 @@ async def handle_data(records):
             schedule = fastf1.get_event_schedule(2025)
             
             stime = None
-            session_key = None
+            session_key = None  
 
             for i in range(1, 6):
                 col = f'Session{i}DateUtc'
