@@ -95,7 +95,7 @@ async def handle_data(records):
         sessiontype = raw['Name'].replace('Practice', 'FP').replace('Qualifying', 'Q').replace('Sprint Qualifying', 'SQ').replace(' ', '')
         sessiontype = str(sessiontype) + str(qno)
         data['session'] = [sessiontype, roundno]
-        if sessiontype != 'Race':
+        if sessiontype != 'Race' or sessiontype != 'Sprint':
             h, m, s = map(int, raw['GmtOffset'].split(':'))
             gmt_offset = timedelta(hours=h, minutes=m, seconds=s)
             
