@@ -128,7 +128,7 @@ async def handle_data(records):
             for i in range(1, 6):
                 col = f'Session{i}DateUtc'
                 for j in schedule[col].to_dict():
-                    session_time = schedule[col][j].to_pydatetime().replace(tzinfo=timezone.utc).astimezone(IST)
+                    session_time = schedule[col][j].to_pydatetime().replace(tzinfo=timezone.utc)
                     if session_time > datetime.now(timezone.utc):
                         if stime is None or session_time < stime:
                             stime = session_time
@@ -137,10 +137,7 @@ async def handle_data(records):
             if session_key:
                 row_idx, col_name = session_key
                 round_no = schedule.loc[row_idx]['RoundNumber']
-                
-
-                session_index = int(col_name.replace('Session', '').replace('DateUtc', ''))
-                session_name = {1: 'FP1', 2: 'FP2', 3: 'FP3', 4: 'Q', 5: 'R'}.get(session_index, f'S{session_index}')
+                session_name = schedule.loc[row_idx][col_name.replace('DateUtc', '')].replace('Practice', 'FP').replace('Qualifying', 'Q').replace('Sprint Qualifying', 'SQ').replace(' ', '')
                 
                 data['session'] = [session_name, int(round_no)]
                 data['status'] = stime.strftime('%Y-%m-%d %H:%M:%S')
