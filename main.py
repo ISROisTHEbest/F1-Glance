@@ -160,5 +160,4 @@ flask_thread = threading.Thread(target=run_flask)
 flask_thread.daemon = True
 flask_thread.start()
 
-# Run LiveF1 client
 asyncio.run(client.run())
