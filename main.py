@@ -60,11 +60,11 @@ async def handle_data(records):
                 pass
                 
                 
-            if not str(gap).startswith('+') and not gap or not isinstance(gap, str):
-                if int(pos) == 1:
-                    gap = "LEADER"
-                elif gap == '':
-                    gap = '--'
+            if int(pos) == 1:
+                gap = "LEADER"
+                
+            if gap == '':
+                gap = '--'
                  
             if key not in data:
                 data[key] = {}
